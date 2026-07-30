@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TP - KCN</title>
+    <title>TP - JobList</title>
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1040/1040241.png" type="image/png">
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -103,16 +103,36 @@
             margin-bottom: 14px;
             transition: all 0.3s;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            gap: 12px;
         }
         .task-item:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
         }
         
-        .task-title {
+        .task-content {
             flex: 1;
-            font-size: 1.05rem;
+            display: flex;
+            flex-direction: column;
         }
+        
+        .task-title {
+            font-size: 1.05rem;
+            word-break: break-word;
+        }
+        .task-link {
+            font-size: 0.9rem;
+            color: var(--primary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .task-link:hover {
+            text-decoration: underline;
+        }
+        
         .completed { 
             text-decoration: line-through; 
             opacity: 0.65; 
@@ -158,19 +178,20 @@
             padding: 2.5rem;
             border-radius: 20px;
             width: 90%;
-            max-width: 460px;
+            max-width: 500px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
         
-        input {
+        input, textarea {
             width: 100%;
             padding: 14px 16px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             font-size: 1.05rem;
             transition: border 0.3s;
+            margin-bottom: 12px;
         }
-        input:focus {
+        input:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
         }
@@ -182,6 +203,10 @@
             border-radius: 12px;
             margin: 15px 0;
             color: #92400e;
+        }
+
+        .link-icon {
+            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -251,7 +276,10 @@
         <div class="modal-content">
             <h3 style="margin-bottom:1.5rem;">Thêm công việc mới</h3>
             <input type="text" id="new-task-title" placeholder="Nhập nội dung công việc..." />
-            <div id="similarity-warning" class="duplicate-alert" style="display:none; margin-top:15px;"></div>
+            <input type="url" id="new-task-url" placeholder="Đường dẫn (nếu có) - ví dụ: https://example.com" />
+            <small style="color:#64748b; display:block; margin-top:-8px; margin-bottom:12px;">Đường dẫn sẽ trở thành link có thể click</small>
+            
+            <div id="similarity-warning" class="duplicate-alert" style="display:none;"></div>
             
             <div style="margin-top: 1.8rem; display:flex; gap:12px; justify-content:flex-end;">
                 <button onclick="hideAddTaskModal()" class="btn-outline">Hủy</button>
@@ -261,7 +289,7 @@
     </div>
 
     <script>
-        // Firebase
+        // Firebase Config
         const firebaseConfig = {
           apiKey: "AIzaSyCrGw3XrCMnExaw66X4a5P6rN_mY_eelGw",
           authDomain: "barcarataz.firebaseapp.com",
@@ -380,9 +408,22 @@
                 const t = tasks[key];
                 const div = document.createElement('div');
                 div.className = 'task-item';
+                
+                let linkHTML = '';
+                if (t.url) {
+                    linkHTML = `
+                        <a href="${t.url}" target="_blank" class="task-link">
+                            <span class="link-icon">🔗</span> ${t.url.length > 50 ? t.url.substring(0, 47) + '...' : t.url}
+                        </a>
+                    `;
+                }
+                
                 div.innerHTML = `
                     <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleComplete('${key}', this.checked)">
-                    <div class="task-title ${t.completed ? 'completed' : ''}">${t.title}</div>
+                    <div class="task-content">
+                        <div class="task-title ${t.completed ? 'completed' : ''}">${t.title}</div>
+                        ${linkHTML}
+                    </div>
                     <button onclick="deleteTask('${key}')" style="background:var(--danger); color:white; padding:8px 16px; font-size:0.9rem;">Xóa</button>
                 `;
                 container.appendChild(div);
@@ -394,16 +435,26 @@
             document.getElementById('add-task-modal').style.display = 'flex';
             document.getElementById('new-task-title').focus();
         }
+        
         function hideAddTaskModal() {
             document.getElementById('add-task-modal').style.display = 'none';
             document.getElementById('similarity-warning').style.display = 'none';
+            document.getElementById('new-task-url').value = '';
         }
 
-        // === NGĂN LƯU TRÙNG LẶP ===
+        // Add Task with URL support
         function addTask() {
             const titleInput = document.getElementById('new-task-title');
+            const urlInput = document.getElementById('new-task-url');
             const title = titleInput.value.trim();
+            let url = urlInput.value.trim();
+            
             if (!title || !currentCategory) return;
+
+            // Validate URL if provided
+            if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
 
             // Kiểm tra trùng lặp
             let maxSim = 0;
@@ -424,9 +475,10 @@
                 return;
             }
 
-            // Lưu nếu không trùng
+            // Lưu
             db.ref(`users/${currentUser.uid}/categories/${currentCategory}/tasks`).push({
                 title: title,
+                url: url || null,
                 completed: false,
                 createdAt: Date.now()
             });
@@ -475,7 +527,7 @@
             }
         }
 
-        // Close modals
+        // Close modals when clicking outside
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('click', e => {
                 if (e.target === modal) modal.style.display = 'none';

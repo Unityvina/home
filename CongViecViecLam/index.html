@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TP - KCN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TP - KCN Mobile</title>
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1040/1040241.png" type="image/png">
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -12,288 +12,415 @@
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
+            --primary-light: #e0e7ff;
             --success: #22c55e;
             --danger: #ef4444;
             --gray: #64748b;
+            --bg: #f8fafc;
         }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
             color: #1e2937;
             min-height: 100vh;
+            padding-bottom: 80px; /* Chừa khoảng trống cho Bottom Nav */
         }
         
+        /* Header Mobile */
         header {
             background: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            padding: 1.2rem 2.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 0.8rem 1.2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 90;
         }
         .logo {
-            font-size: 1.8rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         
+        /* Container chính */
         .container {
-            max-width: 1280px;
-            margin: 2.5rem auto;
-            padding: 0 1.5rem;
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Thanh công cụ danh mục & Kiểm tra trùng */
+        .top-bar {
             display: flex;
-            gap: 2rem;
-        }
-        
-        .sidebar {
-            width: 300px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
             background: white;
+            padding: 12px 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .category-selector-btn {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 8px 14px;
             border-radius: 20px;
-            padding: 1.8rem;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.08);
-            height: fit-content;
-        }
-        
-        .main-content {
-            flex: 1;
-            background: white;
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.08);
-        }
-        
-        h2 {
-            color: #1e2937;
-            font-size: 1.75rem;
-        }
-        
-        .category-item {
-            padding: 14px 18px;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            font-weight: 500;
-        }
-        .category-item:hover {
-            background: #f0f0ff;
-            transform: translateX(4px);
-        }
-        .category-item.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-        
-        .task-item {
+            font-weight: 600;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 16px 20px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            margin-bottom: 14px;
-            transition: all 0.25s ease;
+            gap: 6px;
+            border: none;
+            cursor: pointer;
         }
-        .task-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.1);
+
+        /* Danh sách công việc */
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px;
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            border: 1px solid #f1f5f9;
+        }
+
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            margin-top: 2px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .task-content {
+            flex: 1;
         }
         
         .task-title {
-            flex: 1;
-            font-size: 1.05rem;
+            font-size: 0.98rem;
             word-break: break-word;
-            line-height: 1.5;
+            line-height: 1.4;
+            color: #334155;
         }
         
-        /* Phong cách riêng cho liên kết trong công việc */
         .task-title a {
             color: var(--primary);
             text-decoration: underline;
             font-weight: 600;
-            transition: color 0.2s;
-        }
-        .task-title a:hover {
-            color: var(--primary-dark);
         }
         
         .completed { 
             text-decoration: line-through; 
-            opacity: 0.6; 
-            color: var(--gray);
-        }
-        
-        button {
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            padding: 12px 24px;
-        }
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            padding: 10px 20px;
-        }
-        .btn-outline:hover {
-            background: #f0f0ff;
+            opacity: 0.5; 
         }
 
-        .btn-link {
-            background: #e0e7ff;
-            color: var(--primary-dark);
-            padding: 8px 14px;
-            font-size: 0.88rem;
+        .task-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-        }
-        .btn-link:hover {
-            background: #c7d2fe;
         }
         
+        .btn-link-sm {
+            background: #e0e7ff;
+            color: var(--primary-dark);
+        }
+
+        .btn-delete-sm {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        /* Nút thêm công việc dạng FAB (Floating Action Button) */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+            border: none;
+            z-index: 99;
+            cursor: pointer;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.75rem;
+            color: var(--gray);
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 33%;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item span {
+            font-size: 1.2rem;
+        }
+
+        /* Bottom Sheet Drawer (Danh mục dạng trượt từ dưới) */
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 200;
+            backdrop-filter: blur(2px);
+        }
+
+        .drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 201;
+        }
+
+        .drawer.show {
+            transform: translateY(0);
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .category-item {
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            background: #f8fafc;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-item.active {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        /* Modals tối ưu Mobile */
         .modal {
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 460px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            padding: 1rem;
+            z-index: 300;
         }
         
+        .modal-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
         input {
             width: 100%;
-            padding: 14px 16px;
+            padding: 14px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
-            font-size: 1.05rem;
-            transition: border 0.3s;
+            font-size: 1rem;
+            margin-top: 8px;
         }
+
         input:focus {
             outline: none;
             border-color: var(--primary);
         }
-        
+
+        .btn-full {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+
         .duplicate-alert {
             background: #fef3c7;
-            border-left: 5px solid #f59e0b;
-            padding: 16px;
-            border-radius: 12px;
-            margin: 15px 0;
+            border-left: 4px solid #f59e0b;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 0.9rem;
             color: #92400e;
         }
     </style>
 </head>
 <body>
+
     <header>
         <div class="logo">📋 JobList</div>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <span id="user-info" style="font-weight: 600; color: var(--gray);"></span>
-            <button onclick="logout()" id="logout-btn" class="btn-outline" style="display: none; padding: 8px 18px;">Đăng xuất</button>
-        </div>
+        <span id="user-info" style="font-size: 0.85rem; font-weight: 600; color: var(--gray);"></span>
     </header>
 
     <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <h3 style="margin-bottom: 1.2rem; color: #374151;">📂 Danh mục</h3>
-            <button onclick="showAddCategoryModal()" class="btn-primary" style="width: 100%; margin-bottom: 20px;">
-                + Thêm danh mục mới
+        <!-- Thanh chọn Danh mục & Nút phụ -->
+        <div class="top-bar">
+            <button class="category-selector-btn" onclick="openDrawer()">
+                📁 <span id="current-category-name">Chọn danh mục</span> ▾
             </button>
-            <div id="category-list"></div>
+            <button onclick="checkDuplicates()" style="background:none; border:none; color:var(--primary); font-weight:600; font-size:0.85rem;">
+                🔍 Kiểm trùng
+            </button>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2 id="current-category-name">Chọn một danh mục</h2>
-                <div style="display: flex; gap: 12px;">
-                    <button onclick="checkDuplicates()" class="btn-outline">🔍 Kiểm tra trùng</button>
-                    <button onclick="showAddTaskModal()" class="btn-primary">+ Thêm công việc</button>
-                </div>
-            </div>
-            
-            <div id="duplicate-warning" class="duplicate-alert" style="display: none;"></div>
-            
-            <div id="task-list"></div>
+        <div id="duplicate-warning" class="duplicate-alert" style="display: none;"></div>
+
+        <!-- Danh sách công việc -->
+        <div id="task-list"></div>
+    </div>
+
+    <!-- Nút Nổi Thêm Công Việc (FAB) -->
+    <button class="fab" onclick="showAddTaskModal()">+</button>
+
+    <!-- Navigation dưới màn hình (Mobile Nav) -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="openDrawer()">
+            <span>📁</span>
+            Danh mục
+        </button>
+        <button class="nav-item" onclick="showAddTaskModal()">
+            <span>➕</span>
+            Thêm mới
+        </button>
+        <button class="nav-item" onclick="logout()">
+            <span>🚪</span>
+            Đăng xuất
+        </button>
+    </nav>
+
+    <!-- Bottom Sheet chọn/thêm danh mục -->
+    <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <h3>📂 Chọn Danh mục</h3>
+            <button onclick="showAddCategoryModal()" class="btn-sm btn-primary">+ Danh mục mới</button>
         </div>
+        <div id="category-list"></div>
     </div>
 
     <!-- Modals -->
     <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <h2 style="text-align:center; margin-bottom: 2rem;">Đăng nhập để tiếp tục</h2>
-            <button onclick="loginWithGoogle()" class="btn-primary" style="width:100%; margin:10px 0; padding:16px; font-size:1.1rem;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="24" height="24" style="margin-right:12px; vertical-align:middle;"> Google
+        <div class="modal-content" style="text-align: center;">
+            <h2 style="margin-bottom: 1.5rem;">Đăng nhập</h2>
+            <button onclick="loginWithGoogle()" class="btn-full btn-primary" style="display:flex; align-items:center; justify-content:center; gap:10px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20"> Google
             </button>
-            <button onclick="loginWithFacebook()" class="btn-primary" style="width:100%; margin:10px 0; padding:16px; font-size:1.1rem; background:#1877f2;">
-                <strong style="font-size:1.4rem; vertical-align:middle;">f</strong> Facebook
+            <button onclick="loginWithFacebook()" class="btn-full btn-primary" style="background:#1877f2;">
+                Facebook
             </button>
-            <button onclick="loginWithTwitter()" class="btn-primary" style="width:100%; margin:10px 0; padding:16px; font-size:1.1rem; background:#000;">
-                𝕏 Twitter / X
+            <button onclick="loginWithTwitter()" class="btn-full btn-primary" style="background:#000;">
+                Twitter / X
             </button>
         </div>
     </div>
 
     <div id="add-category-modal" class="modal">
         <div class="modal-content">
-            <h3 style="margin-bottom:1.5rem;">Thêm danh mục mới</h3>
-            <input type="text" id="new-category-name" placeholder="Tên danh mục (ví dụ: Học tập, Công việc...)" />
-            <div style="margin-top: 1.5rem; display:flex; gap:12px; justify-content:flex-end;">
-                <button onclick="hideAddCategoryModal()" class="btn-outline">Hủy</button>
-                <button onclick="addCategory()" class="btn-primary">Thêm danh mục</button>
+            <h3>Thêm danh mục mới</h3>
+            <input type="text" id="new-category-name" placeholder="Tên danh mục..." />
+            <div style="display:flex; gap:10px; margin-top:1rem;">
+                <button onclick="hideAddCategoryModal()" class="btn-full btn-outline">Hủy</button>
+                <button onclick="addCategory()" class="btn-full btn-primary">Lưu</button>
             </div>
         </div>
     </div>
 
     <div id="add-task-modal" class="modal">
         <div class="modal-content">
-            <h3 style="margin-bottom:1.5rem;">Thêm công việc mới</h3>
-            <input type="text" id="new-task-title" placeholder="Nhập nội dung hoặc link (vd: https://google.com)..." />
-            <div id="similarity-warning" class="duplicate-alert" style="display:none; margin-top:15px;"></div>
-            
-            <div style="margin-top: 1.8rem; display:flex; gap:12px; justify-content:flex-end;">
-                <button onclick="hideAddTaskModal()" class="btn-outline">Hủy</button>
-                <button onclick="addTask()" class="btn-primary">Lưu công việc</button>
+            <h3>Thêm công việc</h3>
+            <input type="text" id="new-task-title" placeholder="Nội dung hoặc Link (https://...)" />
+            <div id="similarity-warning" class="duplicate-alert" style="display:none;"></div>
+            <div style="display:flex; gap:10px; margin-top:1rem;">
+                <button onclick="hideAddTaskModal()" class="btn-full btn-outline">Hủy</button>
+                <button onclick="addTask()" class="btn-full btn-primary">Thêm</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Firebase Configuration
+        // Firebase Config
         const firebaseConfig = {
           apiKey: "AIzaSyCrGw3XrCMnExaw66X4a5P6rN_mY_eelGw",
           authDomain: "barcarataz.firebaseapp.com",
@@ -312,7 +439,7 @@
         let currentCategory = null;
         let allTasksCache = {};
 
-        // --- Hàm phát hiện & biến Link thành Thẻ Click được ---
+        // Xử lý URL
         function parseLinks(text) {
             const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
             return text.replace(urlPattern, function(url) {
@@ -320,14 +447,13 @@
             });
         }
 
-        // --- Trích xuất Link đầu tiên để tạo Nút Bấm Nhanh ---
         function extractFirstUrl(text) {
             const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
             const matches = text.match(urlPattern);
             return matches ? matches[0] : null;
         }
 
-        // String Similarity
+        // Tính trùng lặp
         function similarity(s1, s2) {
             s1 = s1.toLowerCase().trim();
             s2 = s2.toLowerCase().trim();
@@ -340,7 +466,6 @@
         function levenshteinDistance(a, b) {
             const matrix = Array.from({length: b.length + 1}, (_, i) => [i]);
             for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-            
             for (let i = 1; i <= b.length; i++) {
                 for (let j = 1; j <= a.length; j++) {
                     const cost = a[j-1] === b[i-1] ? 0 : 1;
@@ -359,8 +484,7 @@
             if (user) {
                 currentUser = user;
                 document.getElementById('login-modal').style.display = 'none';
-                document.getElementById('user-info').innerHTML = `👋 ${user.displayName || user.email.split('@')[0]}`;
-                document.getElementById('logout-btn').style.display = 'block';
+                document.getElementById('user-info').innerText = `👋 ${user.displayName || user.email.split('@')[0]}`;
                 loadCategories();
             } else {
                 document.getElementById('login-modal').style.display = 'flex';
@@ -372,33 +496,54 @@
         function loginWithTwitter() { auth.signInWithPopup(new firebase.auth.TwitterAuthProvider()); }
         function logout() { auth.signOut(); }
 
-        // Categories
+        // Drawer Controls
+        function openDrawer() {
+            document.getElementById('drawer-overlay').style.display = 'block';
+            document.getElementById('drawer').classList.add('show');
+        }
+        function closeDrawer() {
+            document.getElementById('drawer-overlay').style.display = 'none';
+            document.getElementById('drawer').classList.remove('show');
+        }
+
+        // Category
         function loadCategories() {
             db.ref(`users/${currentUser.uid}/categories`).on('value', snap => {
-                renderCategories(snap.val() || {});
+                const categories = snap.val() || {};
+                renderCategories(categories);
+                if (!currentCategory && Object.keys(categories).length > 0) {
+                    const firstKey = Object.keys(categories)[0];
+                    selectCategory(firstKey, categories[firstKey].name);
+                }
             });
         }
 
         function renderCategories(categories) {
             const container = document.getElementById('category-list');
             container.innerHTML = '';
-            
             Object.keys(categories).forEach(key => {
                 const cat = categories[key];
                 const div = document.createElement('div');
                 div.className = `category-item ${currentCategory === key ? 'active' : ''}`;
-                div.textContent = cat.name;
+                div.innerHTML = `<span>${cat.name}</span> <span>${currentCategory === key ? '✓' : ''}</span>`;
                 div.onclick = () => {
-                    currentCategory = key;
-                    renderCategories(categories);
-                    document.getElementById('current-category-name').textContent = cat.name;
-                    loadTasks(key);
+                    selectCategory(key, cat.name);
+                    closeDrawer();
                 };
                 container.appendChild(div);
             });
         }
 
-        function showAddCategoryModal() { document.getElementById('add-category-modal').style.display = 'flex'; }
+        function selectCategory(key, name) {
+            currentCategory = key;
+            document.getElementById('current-category-name').innerText = name;
+            loadTasks(key);
+        }
+
+        function showAddCategoryModal() { 
+            closeDrawer();
+            document.getElementById('add-category-modal').style.display = 'flex'; 
+        }
         function hideAddCategoryModal() { document.getElementById('add-category-modal').style.display = 'none'; }
 
         function addCategory() {
@@ -420,7 +565,7 @@
         function renderTasks(tasks) {
             const container = document.getElementById('task-list');
             container.innerHTML = Object.keys(tasks).length === 0 
-                ? `<p style="text-align:center; color:#64748b; padding:40px;">Chưa có công việc nào trong danh mục này.</p>`
+                ? `<p style="text-align:center; color:var(--gray); margin-top:40px;">Chưa có công việc nào.</p>`
                 : '';
 
             Object.keys(tasks).forEach(key => {
@@ -428,27 +573,29 @@
                 const div = document.createElement('div');
                 div.className = 'task-item';
                 
-                // Tự động quét và biến URL thành link click
                 const formattedTitle = parseLinks(t.title);
                 const firstUrl = extractFirstUrl(t.title);
 
-                // Nút "Mở Link" nếu trong tiêu đề có đường dẫn
-                const linkButtonHtml = firstUrl 
-                    ? `<a href="${firstUrl}" target="_blank" rel="noopener noreferrer" class="btn-link">🌐 Mở link</a>` 
+                const linkBtn = firstUrl 
+                    ? `<a href="${firstUrl}" target="_blank" class="btn-sm btn-link-sm">🌐 Link</a>` 
                     : '';
 
                 div.innerHTML = `
-                    <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleComplete('${key}', this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
-                    <div class="task-title ${t.completed ? 'completed' : ''}">${formattedTitle}</div>
-                    ${linkButtonHtml}
-                    <button onclick="deleteTask('${key}')" style="background:var(--danger); color:white; padding:8px 14px; font-size:0.88rem;">Xóa</button>
+                    <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} onchange="toggleComplete('${key}', this.checked)">
+                    <div class="task-content">
+                        <div class="task-title ${t.completed ? 'completed' : ''}">${formattedTitle}</div>
+                        <div class="task-actions">
+                            ${linkBtn}
+                            <button onclick="deleteTask('${key}')" class="btn-sm btn-delete-sm">Xóa</button>
+                        </div>
+                    </div>
                 `;
                 container.appendChild(div);
             });
         }
 
         function showAddTaskModal() {
-            if (!currentCategory) return alert("Vui lòng chọn danh mục trước!");
+            if (!currentCategory) return alert("Vui lòng chọn hoặc tạo danh mục trước!");
             document.getElementById('add-task-modal').style.display = 'flex';
             document.getElementById('new-task-title').focus();
         }
@@ -457,13 +604,11 @@
             document.getElementById('similarity-warning').style.display = 'none';
         }
 
-        // Ngăn lưu trùng lặp
         function addTask() {
             const titleInput = document.getElementById('new-task-title');
             const title = titleInput.value.trim();
             if (!title || !currentCategory) return;
 
-            // Kiểm tra trùng lặp
             let maxSim = 0;
             let duplicateTitle = "";
 
@@ -477,12 +622,11 @@
 
             if (maxSim >= 80) {
                 const warning = document.getElementById('similarity-warning');
-                warning.innerHTML = `⚠️ Công việc này giống <strong>${maxSim}%</strong> với: <br>"${duplicateTitle}"<br><small>Không cho phép lưu trùng lặp!</small>`;
+                warning.innerHTML = `⚠️ Trùng <strong>${maxSim}%</strong> với: "${duplicateTitle}"`;
                 warning.style.display = 'block';
                 return;
             }
 
-            // Lưu nếu không trùng
             db.ref(`users/${currentUser.uid}/categories/${currentCategory}/tasks`).push({
                 title: title,
                 completed: false,
@@ -505,40 +649,28 @@
 
         function checkDuplicates() {
             const tasks = Object.values(allTasksCache);
-            if (tasks.length < 2) {
-                alert("Cần ít nhất 2 công việc để kiểm tra trùng lặp!");
-                return;
-            }
+            if (tasks.length < 2) return alert("Cần ít nhất 2 công việc để kiểm tra!");
 
             let found = [];
             for (let i = 0; i < tasks.length; i++) {
                 for (let j = i+1; j < tasks.length; j++) {
                     const sim = similarity(tasks[i].title, tasks[j].title);
-                    if (sim >= 80) {
-                        found.push({t1: tasks[i].title, t2: tasks[j].title, sim});
-                    }
+                    if (sim >= 80) found.push({t1: tasks[i].title, t2: tasks[j].title, sim});
                 }
             }
 
             const warning = document.getElementById('duplicate-warning');
             if (found.length > 0) {
-                let html = `<strong>Phát hiện ${found.length} cặp trùng lặp:</strong><br>`;
-                found.forEach(f => html += `• ${f.t1} <strong>(${f.sim}%)</strong> ~ ${f.t2}<br>`);
+                let html = `<strong>Có ${found.length} cặp trùng:</strong><br>`;
+                found.forEach(f => html += `• ${f.t1} ~ ${f.t2} (${f.sim}%)<br>`);
                 warning.innerHTML = html;
                 warning.style.display = 'block';
             } else {
-                warning.innerHTML = '✅ Không có công việc trùng lặp (≥ 80%)';
+                warning.innerHTML = '✅ Không có công việc trùng lặp (≥80%)';
                 warning.style.display = 'block';
-                setTimeout(() => warning.style.display = 'none', 6000);
+                setTimeout(() => warning.style.display = 'none', 4000);
             }
         }
-
-        // Close modals on overlay click
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', e => {
-                if (e.target === modal) modal.style.display = 'none';
-            });
-        });
     </script>
 </body>
 </html>

@@ -158,6 +158,65 @@
             color: var(--danger);
         }
 
+        /* Phân trang UI */
+        .pagination-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pagination-btn {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .pagination-btn:disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .pagination-setting {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--gray);
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 8px;
+        }
+
+        .pagination-setting select {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            outline: none;
+            font-size: 0.8rem;
+        }
+
         /* Nút thêm công việc dạng FAB (Floating Action Button) */
         .fab {
             position: fixed;
@@ -215,7 +274,7 @@
             font-size: 1.2rem;
         }
 
-        /* Bottom Sheet Drawer (Danh mục dạng trượt từ dưới) */
+        /* Bottom Sheet Drawer */
         .drawer-overlay {
             position: fixed;
             inset: 0;
@@ -349,6 +408,24 @@
 
         <!-- Danh sách công việc -->
         <div id="task-list"></div>
+
+        <!-- Thanh phân trang -->
+        <div id="pagination-bar" class="pagination-container" style="display: none;">
+            <div class="pagination-controls">
+                <button id="btn-prev" class="pagination-btn" onclick="changePage(-1)">‹ Trước</button>
+                <span id="page-info" class="pagination-info">Trang 1 / 1</span>
+                <button id="btn-next" class="pagination-btn" onclick="changePage(1)">Sau ›</button>
+            </div>
+            <div class="pagination-setting">
+                <span>Hiển thị mỗi trang:</span>
+                <select id="items-per-page" onchange="changeItemsPerPage(this.value)">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+        </div>
     </div>
 
     <!-- Nút Nổi Thêm Công Việc (FAB) -->
@@ -438,6 +515,10 @@
         let currentUser = null;
         let currentCategory = null;
         let allTasksCache = {};
+
+        // Biến phục vụ phân trang
+        let currentPage = 1;
+        let itemsPerPage = 10;
 
         // Xử lý URL
         function parseLinks(text) {
@@ -536,6 +617,7 @@
 
         function selectCategory(key, name) {
             currentCategory = key;
+            currentPage = 1; // Reset về trang 1 khi chuyển danh mục
             document.getElementById('current-category-name').innerText = name;
             loadTasks(key);
         }
@@ -558,18 +640,36 @@
         function loadTasks(catId) {
             db.ref(`users/${currentUser.uid}/categories/${catId}/tasks`).on('value', snap => {
                 allTasksCache = snap.val() || {};
-                renderTasks(allTasksCache);
+                renderTasks();
             });
         }
 
-        function renderTasks(tasks) {
+        function renderTasks() {
             const container = document.getElementById('task-list');
-            container.innerHTML = Object.keys(tasks).length === 0 
-                ? `<p style="text-align:center; color:var(--gray); margin-top:40px;">Chưa có công việc nào.</p>`
-                : '';
+            const keys = Object.keys(allTasksCache);
+            
+            // Sắp xếp công việc mới nhất lên đầu
+            keys.sort((a, b) => (allTasksCache[b].createdAt || 0) - (allTasksCache[a].createdAt || 0));
 
-            Object.keys(tasks).forEach(key => {
-                const t = tasks[key];
+            if (keys.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:var(--gray); margin-top:40px;">Chưa có công việc nào.</p>`;
+                document.getElementById('pagination-bar').style.display = 'none';
+                return;
+            }
+
+            // Tính toán Phân Trang
+            const totalPages = Math.ceil(keys.length / itemsPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentKeys = keys.slice(startIndex, endIndex);
+
+            // Render danh sách trang hiện tại
+            container.innerHTML = '';
+            currentKeys.forEach(key => {
+                const t = allTasksCache[key];
                 const div = document.createElement('div');
                 div.className = 'task-item';
                 
@@ -592,6 +692,31 @@
                 `;
                 container.appendChild(div);
             });
+
+            // Cập nhật giao diện phân trang
+            renderPaginationUI(keys.length, totalPages);
+        }
+
+        function renderPaginationUI(totalItems, totalPages) {
+            const paginationBar = document.getElementById('pagination-bar');
+            paginationBar.style.display = 'flex';
+
+            document.getElementById('page-info').innerText = `Trang ${currentPage} / ${totalPages}`;
+            
+            document.getElementById('btn-prev').disabled = (currentPage <= 1);
+            document.getElementById('btn-next').disabled = (currentPage >= totalPages);
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderTasks();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeItemsPerPage(val) {
+            itemsPerPage = parseInt(val, 10);
+            currentPage = 1;
+            renderTasks();
         }
 
         function showAddTaskModal() {
@@ -635,6 +760,7 @@
 
             hideAddTaskModal();
             titleInput.value = '';
+            currentPage = 1; // Chuyển về trang đầu để người dùng thấy task mới thêm
         }
 
         function toggleComplete(taskId, completed) {

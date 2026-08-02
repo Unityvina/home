@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TP - KCN Mobile</title>
+    <title>TP - KCN - VỀ QUÊ</title>
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1040/1040241.png" type="image/png">
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -86,6 +86,7 @@
             gap: 6px;
             border: none;
             cursor: pointer;
+            position: relative;
         }
 
         /* Danh sách công việc */
@@ -384,6 +385,31 @@
             font-size: 0.9rem;
             color: #92400e;
         }
+
+        /* Badge đếm công việc chưa hoàn thành */
+        .badge-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            border: 2px solid white;
+            line-height: 1;
+        }
+
+        .badge-count.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -398,6 +424,7 @@
         <div class="top-bar">
             <button class="category-selector-btn" onclick="openDrawer()">
                 📁 <span id="current-category-name">Chọn danh mục</span> ▾
+                <span id="incomplete-badge" class="badge-count hidden">0</span>
             </button>
             <button onclick="checkDuplicates()" style="background:none; border:none; color:var(--primary); font-weight:600; font-size:0.85rem;">
                 🔍 Kiểm trùng
@@ -644,9 +671,23 @@
             });
         }
 
+        // Cập nhật badge đếm công việc chưa hoàn thành
+        function updateIncompleteBadge() {
+            const badge = document.getElementById('incomplete-badge');
+            const incompleteCount = Object.values(allTasksCache).filter(t => !t.completed).length;
+            if (incompleteCount > 0) {
+                badge.innerText = incompleteCount > 99 ? '99+' : incompleteCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
         function renderTasks() {
             const container = document.getElementById('task-list');
             const keys = Object.keys(allTasksCache);
+
+            updateIncompleteBadge();
             
             // Sắp xếp công việc mới nhất lên đầu
             keys.sort((a, b) => (allTasksCache[b].createdAt || 0) - (allTasksCache[a].createdAt || 0));
